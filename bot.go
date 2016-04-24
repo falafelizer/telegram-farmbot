@@ -12,10 +12,11 @@ import (
 const (
 	// APIToken for Telegram YourFarmBot
 	APIToken = "194047760:AAF73o66eOYH98GQoTTtZDd4-dkefjw663I"
-	// TestFile is a smaple file
-	TestFile = "/Users/keen/Pictures/heartbeats.jpg"
-	file     = "http://blog.humanesociety.org/wp-content/uploads/2015/10/pig-massachusetts-ballot-initiative-1220x813.jpg"
-	zipcode  = "78705"
+	// HeartbeatImage is a picture of a heartbeat
+	HeartbeatImage = "./image/heartbeats.jpg"
+	// PiggyImage is a picture of a pig
+	PiggyImage = "./image/piggy.jpg"
+	zipcode    = "78705"
 )
 
 type marketResponse struct {
@@ -60,7 +61,7 @@ func main() {
 			}
 		case "hello?":
 			{
-				photoUpload := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, TestFile)
+				photoUpload := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, HeartbeatImage)
 				photoUpload.Caption = "It's alive!!"
 				photoUpload.FileID = "heartbeat"
 				if msg, err := bot.Send(photoUpload); err != nil {
@@ -72,8 +73,8 @@ func main() {
 
 		case "piggy":
 			{
-				photoUpload := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, file)
-				photoUpload.Caption = "Little piggy"
+				photoUpload := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, PiggyImage)
+				photoUpload.Caption = "Little piggy!"
 				photoUpload.FileID = "piggy"
 				if msg, err := bot.Send(photoUpload); err != nil {
 					log.Println(err)
@@ -90,7 +91,11 @@ func main() {
 				if err != nil {
 					log.Printf("Could net search zipcode %s: %v", zipcode, err)
 				}
-				defer resp.Body.Close()
+				defer func() {
+					if err := resp.Body.Close(); err != nil {
+						log.Println(err)
+					}
+				}()
 
 				body, err := ioutil.ReadAll(resp.Body)
 				if err != nil {
